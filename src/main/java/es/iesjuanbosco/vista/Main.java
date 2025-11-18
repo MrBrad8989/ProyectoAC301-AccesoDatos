@@ -1,12 +1,10 @@
 package es.iesjuanbosco.vista;
 
+import es.iesjuanbosco.dao.CategoriaDAO;
 import es.iesjuanbosco.dao.ClienteDAO;
 import es.iesjuanbosco.dao.ProductoDAO;
 import es.iesjuanbosco.dao.VentaDAO;
-import es.iesjuanbosco.modelo.Cliente;
-import es.iesjuanbosco.modelo.DetalleVenta;
-import es.iesjuanbosco.modelo.Producto;
-import es.iesjuanbosco.modelo.Venta;
+import es.iesjuanbosco.modelo.*;
 import es.iesjuanbosco.service.VentaService;
 import es.iesjuanbosco.utils.JpaUtil;
 import jakarta.persistence.EntityManager;
@@ -33,7 +31,7 @@ public class Main {
             ClienteDAO clienteDAO = new ClienteDAO(em);
 
             Cliente cliente = new Cliente();
-            cliente.setNombre("Laura");
+            cliente.setNombre("María");
             cliente.setApellidos("Martínez");
             cliente.setDni("12345678A");
             clienteDAO.guardar(cliente);
@@ -131,6 +129,8 @@ public class Main {
         } finally {
             if (em2.isOpen()) em2.close();
         }
+
+        // 4) Generar un reporte detallado de ventas
         System.out.println("\n=== REPORTE DE VENTAS ===");
         VentaDAO ventaDAO2 = new VentaDAO(em2);
         List<Object[]> reporte = ventaDAO2.obtenerReporteVentas();
@@ -167,6 +167,26 @@ public class Main {
 
         if (ventaActual != null) {
             System.out.println("  TOTAL VENTA: " + totalVenta + "€");
+        }
+
+        // 5) Demostración de JOIN FETCH en CategoriaDAO
+        System.out.println("\n=== DEMOSTRACIÓN JOIN FETCH EN CATEGORIADAO ===");
+        EntityManager em3 = emf.createEntityManager();
+        try {
+            CategoriaDAO categoriaDAO = new CategoriaDAO(em3);
+
+            System.out.println("Cargando categorías con sus productos:");
+            List<Categoria> categorias = categoriaDAO.obtenerTodasConProductos();
+
+            for (Categoria cat : categorias) {
+                System.out.println("\nCategoría: " + cat.getNombre() + " (id=" + cat.getId() + ")");
+                System.out.println("  Productos:");
+                for (Producto prod : cat.getProductos()) {
+                    System.out.println("    - " + prod.getNombre() + " | Stock: " + prod.getStock());
+                }
+            }
+        } finally {
+            if (em3.isOpen()) em3.close();
         }
 
         // 4) Limpiamos recursos
