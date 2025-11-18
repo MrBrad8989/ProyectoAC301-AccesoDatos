@@ -38,6 +38,7 @@ public class VentaDAO {
         Venta venta = em.find(Venta.class, id);
         return venta != null ? java.util.Optional.of(venta) : java.util.Optional.empty();
     }
+    // Obtener reporte de ventas con detalles
     public List<Object[]> obtenerReporteVentas() {
         String jpql = "SELECT v.id, v.fecha, v.estado, v.total, " +
                 "c.nombre, c.apellidos, " +
