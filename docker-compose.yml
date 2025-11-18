@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: ventas_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=alumno
+      - MYSQL_DATABASE=ventas_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: ventas_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=alumno
+
+volumes:
+  db_data:
+
+# Notas:
+# - El script SQL ubicado en ./db (db/create_mariadb.sql) será ejecutado automáticamente
+#   por la imagen de MariaDB la primera vez que se inicialice el volumen de datos.
+# - Si ya existen datos en el volumen y quieres re-ejecutar el script, elimina el volumen
+#   con: docker compose down -v && docker compose up -d
+# - Accede a phpMyAdmin en http://localhost:8080 (usuario root / contraseña alumno)
+# - Asegúrate de que el puerto 3306 no esté ocupado por otra instancia local de MariaDB
+
