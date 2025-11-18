@@ -131,6 +131,43 @@ public class Main {
         } finally {
             if (em2.isOpen()) em2.close();
         }
+        System.out.println("\n=== REPORTE DE VENTAS ===");
+        VentaDAO ventaDAO2 = new VentaDAO(em2);
+        List<Object[]> reporte = ventaDAO2.obtenerReporteVentas();
+
+        Long ventaActual = null;
+        double totalVenta = 0.0;
+
+        for (Object[] fila : reporte) {
+            Long vId = (Long) fila[0];
+
+            if (ventaActual == null || !ventaActual.equals(vId)) {
+                if (ventaActual != null) {
+                    System.out.println("  TOTAL VENTA: " + totalVenta + "€\n");
+                }
+
+                ventaActual = vId;
+                totalVenta = 0.0;
+
+                System.out.println("VENTA #" + fila[0] + " | Fecha: " + fila[1] + " | Estado: " + fila[2]);
+                System.out.println("Cliente: " + fila[4] + " " + fila[5]);
+                System.out.println("Líneas:");
+            }
+
+            Integer cantidad = (Integer) fila[6];
+            Double precioVenta = (Double) fila[7];
+            String nombreProducto = (String) fila[8];
+            String nombreCategoria = (String) fila[9];
+
+            double importe = cantidad * precioVenta;
+            totalVenta += importe;
+
+            System.out.println("  - " + nombreProducto + " (" + nombreCategoria + ") x" + cantidad + " = " + importe + "€");
+        }
+
+        if (ventaActual != null) {
+            System.out.println("  TOTAL VENTA: " + totalVenta + "€");
+        }
 
         // 4) Limpiamos recursos
         JpaUtil.close();

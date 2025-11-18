@@ -38,4 +38,18 @@ public class VentaDAO {
         Venta venta = em.find(Venta.class, id);
         return venta != null ? java.util.Optional.of(venta) : java.util.Optional.empty();
     }
+    public List<Object[]> obtenerReporteVentas() {
+        String jpql = "SELECT v.id, v.fecha, v.estado, v.total, " +
+                "c.nombre, c.apellidos, " +
+                "dv.cantidad, dv.precioVenta, " +
+                "p.nombre, cat.nombre " +
+                "FROM Venta v " +
+                "JOIN v.cliente c " +
+                "JOIN v.detalleVentas dv " +
+                "JOIN dv.producto p " +
+                "JOIN p.categoria cat " +
+                "ORDER BY v.id, dv.id";
+
+        return em.createQuery(jpql, Object[].class).getResultList();
+    }
 }

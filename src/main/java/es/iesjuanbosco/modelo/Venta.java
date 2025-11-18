@@ -45,4 +45,8 @@ public class Venta {
         this.detalleVentas.add(detalle);
         detalle.setVenta(this);
     }
+    public void removeDetalle(DetalleVenta detalle) {
+        this.detalleVentas.remove(detalle);
+        detalle.setVenta(null);
+    }
 }

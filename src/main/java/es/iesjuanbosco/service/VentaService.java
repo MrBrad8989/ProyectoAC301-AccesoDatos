@@ -99,4 +99,29 @@ public class VentaService {
             if (em.isOpen()) em.close();
         }
     }
+    public void eliminarLineaDetalleVenta(Long ventaId, Long detalleId) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        try {
+            Venta venta = em.find(Venta.class, ventaId);
+            if (venta != null) {
+                DetalleVenta detalleAEliminar = venta.getDetalleVentas().stream()
+                        .filter(d -> d.getId().equals(detalleId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (detalleAEliminar != null) {
+                    venta.removeDetalle(detalleAEliminar);
+                }
+            }
+            tx.commit();
+            System.out.println("Línea de detalle eliminada (orphanRemoval activo).");
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            System.err.println("Error: " + e.getMessage());
+        } finally {
+            if (em.isOpen()) em.close();
+        }
+    }
 }
